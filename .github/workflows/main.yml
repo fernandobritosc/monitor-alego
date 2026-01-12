@@ -1,30 +1,35 @@
-name: Monitor ALEGO Diário
+name: Monitor de Concursos
 on:
   schedule:
-    - cron: '*/30 * * * *'
-  workflow_dispatch:
+    - cron: '*/40 * * * *' # Mantendo os seus 40 minutos de segurança
+  workflow_dispatch: 
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout código
+      - name: Checkout do repositório
         uses: actions/checkout@v3
+
       - name: Configurar Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-      - name: Instalar bibliotecas
-        run: pip install requests beautifulsoup4
-      - name: Executar Monitor
+
+      - name: Instalar dependências
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Executar o script
         env:
           TOKEN_TELEGRAM: ${{ secrets.TOKEN_TELEGRAM }}
           ID_TELEGRAM: ${{ secrets.ID_TELEGRAM }}
-        run: python monitor.py
-      - name: Salvar progresso
+        run: python monitor_concursos_v2.py
+
+      - name: Salvar alterações (Persistência)
         run: |
-          git config --global user.name 'Bot Monitor'
-          git config --global user.email 'bot@monitor.com'
-          git add ultimo_visto.txt
-          git commit -m "Atualizando ultima postagem" || exit 0
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add concursos_data.json
+          git commit -m "Atualizando estado [skip ci]" || echo "Sem novidades"
           git push
