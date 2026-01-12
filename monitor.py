@@ -1,41 +1,37 @@
-import os
 import requests
 from bs4 import BeautifulSoup
+import os
 
-# O GitHub Actions pegará estes valores dos segredos que vamos configurar
+# Configurações vindas dos seus Secrets
 TOKEN = os.getenv("TOKEN_TELEGRAM")
-ID = os.getenv("ID_TELEGRAM")
-URL = "https://conhecimento.fgv.br/concursos/alego25"
+ID_CHAT = os.getenv("ID_TELEGRAM")
 
-def verificar():
-    headers = {'User-Agent': 'Mozilla/5.0'}
-    try:
-        response = requests.get(URL, headers=headers)
-        response.encoding = 'utf-8'
-        soup = BeautifulSoup(response.text, 'html.parser')
-        item = soup.find('div', class_='views-row')
-        
-        if item:
-            texto_atual = item.get_text().strip()
-            
-            # Tenta ler o que foi visto na última vez
-            if os.path.exists("ultimo_visto.txt"):
-                with open("ultimo_visto.txt", "r", encoding='utf-8') as f:
-                    ultimo_visto = f.read()
-            else:
-                ultimo_visto = ""
+def enviar_telegram(mensagem):
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    requests.post(url, data={"chat_id": ID_CHAT, "text": mensagem})
 
-            # Se mudou, manda o Telegram
-            if texto_atual != ultimo_visto:
-                msg = f"🔔 NOVIDADE FGV ALEGO:\n\n{texto_atual}\n\nLink: {URL}"
-                requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", 
-                              data={"chat_id": ID, "text": msg})
-                
-                # Salva o novo texto para a próxima comparação
-                with open("ultimo_visto.txt", "w", encoding='utf-8') as f:
-                    f.write(texto_atual)
-    except Exception as e:
-        print(f"Erro: {e}")
+def monitorar():
+    # --- MONITOR FGV (ALEGO) ---
+    url_fgv = "https://conhecimento.fgv.br/concursos/alego24"
+    res_fgv = requests.get(url_fgv)
+    soup_fgv = BeautifulSoup(res_fgv.text, 'html.parser')
+    # Pega o primeiro item da lista de notícias da FGV
+    noticia_fgv = soup_fgv.find('div', class_='views-row')
+    txt_fgv = noticia_fgv.get_text(strip=True) if noticia_fgv else "Erro FGV"
+
+    # --- MONITOR VERBENA (CÂMARA GOIÂNIA) ---
+    url_verbena = "https://sistemas.institutoverbena.ufg.br/2025/concurso-camara-goiania/"
+    res_verbena = requests.get(url_verbena)
+    soup_verbena = BeautifulSoup(res_verbena.text, 'html.parser')
+    # Tenta pegar a primeira linha de comunicados
+    noticia_verbena = soup_verbena.find('div', class_='field-content')
+    txt_verbena = noticia_verbena.get_text(strip=True) if noticia_verbena else "Erro Verbena"
+
+    # Lógica simples de comparação (exemplo simplificado)
+    # Aqui você salvaria num arquivo txt para comparar se mudou
+    # Por enquanto, ele apenas avisa que o monitoramento está ativo
+    print(f"FGV: {txt_fgv}")
+    print(f"Verbena: {txt_verbena}")
 
 if __name__ == "__main__":
-    verificar()
+    monitorar()
