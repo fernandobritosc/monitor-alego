@@ -4,29 +4,25 @@ import os
 
 TOKEN = os.getenv("TOKEN_TELEGRAM")
 ID_CHAT = os.getenv("ID_TELEGRAM")
-# Cabeçalho para o site não bloquear o robô
-HEADERS = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-
-def enviar_msg(texto):
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {"chat_id": ID_CHAT, "text": texto}
-    r = requests.post(url, data=payload)
-    print(f"Status Telegram: {r.status_code}") # Mostra no log do GitHub se enviou
+HEADERS = {'User-Agent': 'Mozilla/5.0'}
 
 def monitorar():
-    try:
-        # --- TESTE FGV (ALEGO) ---
-        url_fgv = "https://conhecimento.fgv.br/concursos/alego25"
-        res_fgv = requests.get(url_fgv, headers=HEADERS, timeout=10)
-        soup_fgv = BeautifulSoup(res_fgv.text, 'html.parser')
-        noticia_fgv = soup_fgv.find('a') # Pega o primeiro link que achar
-        txt_fgv = noticia_fgv.get_text(strip=True)[:50] if noticia_fgv else "Não lido"
-        
-        # Envia a mensagem IMEDIATAMENTE após ler a FGV
-        enviar_msg(f"🤖 Monitor On!\n\nFGV: {txt_fgv}\nLink: {url_fgv}")
-        
-    except Exception as e:
-        enviar_msg(f"Erro no robô: {e}")
+    # --- Lógica FGV (ALEGO) ---
+    res_fgv = requests.get("https://conhecimento.fgv.br/concursos/alego25", headers=HEADERS)
+    soup_fgv = BeautifulSoup(res_fgv.text, 'html.parser')
+    noticia_fgv = soup_fgv.find('a', class_='p-l-0')
+    txt_fgv = noticia_fgv.get_text(strip=True) if noticia_fgv else "Sem dados"
+
+    # --- Lógica Verbena (Câmara Goiânia) ---
+    res_verbena = requests.get("https://sistemas.institutoverbena.ufg.br/2025/concurso-camara-goiania/", headers=HEADERS)
+    soup_verbena = BeautifulSoup(res_verbena.text, 'html.parser')
+    # Procura o primeiro comunicado da lista que vimos na sua foto
+    noticia_verbena = soup_verbena.find('div', class_='field-content')
+    txt_verbena = noticia_verbena.get_text(strip=True) if noticia_verbena else "Sem dados"
+
+    # Envia a confirmação para o grupo
+    msg = f"✅ Monitoramento Ativo!\n\n🏛 ALEGO (FGV): {txt_fgv[:50]}...\n\n🏢 Goiânia (Verbena): {txt_verbena[:50]}..."
+    requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", data={"chat_id": ID_CHAT, "text": msg})
 
 if __name__ == "__main__":
     monitorar()
