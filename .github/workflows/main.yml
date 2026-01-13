@@ -2,7 +2,10 @@ name: Monitor de Concursos
 
 on:
   schedule:
+    # Roda a cada 30 minutos
     - cron: '*/30 * * * *'
+    # Garante uma execução exatamente à meia-noite (00:00 UTC) para o alerta de datas
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -29,7 +32,7 @@ jobs:
       env:
         TOKEN_TELEGRAM: ${{ secrets.TOKEN_TELEGRAM }}
         ID_TELEGRAM: ${{ secrets.ID_TELEGRAM }}
-      run: python monitor_concursos_v2.py
+      run: python monitor_concursos_v3.py
 
     - name: Salvar alterações no estado
       run: |
@@ -37,6 +40,6 @@ jobs:
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         if [ -f "concursos_data.json" ]; then
           git add concursos_data.json
-          git commit -m "Atualizando estado [skip ci]" || echo "Sem alterações"
+          git commit -m "Atualizando estado e calendário [skip ci]" || echo "Sem alterações"
           git push
         fi
