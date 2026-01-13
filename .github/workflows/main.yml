@@ -32,7 +32,7 @@ jobs:
       env:
         TOKEN_TELEGRAM: ${{ secrets.TOKEN_TELEGRAM }}
         ID_TELEGRAM: ${{ secrets.ID_TELEGRAM }}
-      run: python monitor_concursos_v3.py
+      run: python monitor_concursos_v2.py
 
     - name: Salvar alterações no estado
       run: |
