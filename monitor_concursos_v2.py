@@ -8,8 +8,7 @@ from datetime import datetime
 # Configuração de Logs
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    filename='monitor_concursos.log'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
 TOKEN = os.getenv("TOKEN_TELEGRAM")
@@ -20,7 +19,6 @@ HEADERS = {
 
 DATA_FILE = "concursos_data.json"
 
-# --- CRONOGRAMA OFICIAL ALEGO 2025 (Extraído do PDF) ---
 CALENDARIO_PRAZOS = {
     "2026-01-15": "Publicação da Relação Definitiva de Inscrições e Divulgação da Relação Candidato Vaga",
     "2026-02-02": "Publicação dos locais de prova (CCI)",
@@ -40,57 +38,19 @@ CALENDARIO_PRAZOS = {
 }
 
 def send_telegram_msg(message):
-    if not TOKEN or not ID_CHAT:
-        logging.error("Configurações do Telegram ausentes.")
-        return
+    if not TOKEN or not ID_CHAT: return
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     try:
-        response = requests.post(url, data={
-            "chat_id": ID_CHAT, 
-            "text": message, 
-            "parse_mode": "Markdown",
-            "disable_web_page_preview": True
-        })
-        response.raise_for_status()
+        requests.post(url, data={"chat_id": ID_CHAT, "text": message, "parse_mode": "Markdown", "disable_web_page_preview": True})
     except Exception as e:
-        logging.error(f"Erro ao enviar mensagem para o Telegram: {e}")
-
-def verificar_calendario():
-    """Verifica se hoje há algum prazo importante no calendário."""
-    hoje = datetime.now().strftime("%Y-%m-%d")
-    if hoje in CALENDARIO_PRAZOS:
-        evento = CALENDARIO_PRAZOS[hoje]
-        msg = f"📅 *ALERTA DE PRAZO HOJE!* ({hoje})\n\n"
-        msg += f"📍 Evento: *{evento}*\n"
-        msg += "\nNão esqueça de conferir os detalhes no site oficial!"
-        send_telegram_msg(msg)
-        logging.info(f"Alerta de calendário enviado: {evento}")
-
-def get_page_items(url, selector=None):
-    try:
-        response = requests.get(url, headers=HEADERS, timeout=20)
-        response.raise_for_status()
-        soup = BeautifulSoup(response.text, 'html.parser')
-        root = soup.select_one(selector) if selector else soup
-        if not root:
-            root = soup
-        items = []
-        for a in root.find_all('a'):
-            text = a.get_text(strip=True)
-            if text and len(text) > 3:
-                items.append(text)
-        return sorted(list(set(items)))
-    except Exception as e:
-        logging.error(f"Erro ao acessar {url}: {e}")
-        return None
+        logging.error(f"Erro Telegram: {e}")
 
 def load_data():
     if os.path.exists(DATA_FILE):
         try:
             with open(DATA_FILE, 'r', encoding='utf-8') as f:
                 return json.load(f)
-        except:
-            return {}
+        except: return {}
     return {}
 
 def save_data(data):
@@ -98,44 +58,48 @@ def save_data(data):
         json.dump(data, f, indent=4, ensure_ascii=False)
 
 def monitorar():
-    logging.info("Iniciando monitoramento...")
-    verificar_calendario()
-    
+    logging.info("Iniciando...")
+    hoje = datetime.now().strftime("%Y-%m-%d")
+    old_data = load_data()
+    new_data = old_data.copy()
+    mudanca = False
+
+    # --- TRAVA ANTI-SPAM PARA O CALENDÁRIO ---
+    if hoje in CALENDARIO_PRAZOS:
+        # Verifica se o aviso para 'hoje' já consta no JSON como enviado
+        if old_data.get("ultimo_alerta_calendario") != hoje:
+            evento = CALENDARIO_PRAZOS[hoje]
+            msg = f"📅 *ALERTA DE PRAZO HOJE!* ({hoje})\n\n📍 Evento: *{evento}*\n\nConfira no site oficial!"
+            send_telegram_msg(msg)
+            new_data["ultimo_alerta_calendario"] = hoje
+            mudanca = True
+
+    # --- MONITORAMENTO DE SITES ---
     sites = {
-        "FGV (ALEGO)": {
-            "url": "https://conhecimento.fgv.br/concursos/alego25",
-            "selector": "#block-system-main"
-        },
-        "Verbena (Câmara Goiânia)": {
-            "url": "https://sistemas.institutoverbena.ufg.br/2025/concurso-camara-goiania/",
-            "selector": ".container" 
-        }
+        "FGV (ALEGO)": "https://conhecimento.fgv.br/concursos/alego25",
+        "Verbena (Câmara Goiânia)": "https://sistemas.institutoverbena.ufg.br/2025/concurso-camara-goiania/"
     }
     
-    old_data = load_data()
-    new_data = {}
-    
-    for name, info in sites.items():
-        current_items = get_page_items(info['url'], info['selector'])
-        if current_items is not None:
-            new_data[name] = current_items
-            if name in old_data:
-                old_items = set(old_data[name])
-                diff = set(current_items) - old_items
+    for name, url in sites.items():
+        try:
+            res = requests.get(url, headers=HEADERS, timeout=20)
+            soup = BeautifulSoup(res.text, 'html.parser')
+            links = [a.get_text(strip=True) for a in soup.find_all('a') if len(a.get_text(strip=True)) > 5]
+            current_items = sorted(list(set(links)))
+
+            if name in old_data and isinstance(old_data[name], list):
+                diff = set(current_items) - set(old_data[name])
                 if diff:
-                    msg = f"🔔 *Nova atualização no site: {name}*\n\n"
-                    msg += "Os seguintes itens novos foram encontrados:\n"
-                    for item in diff:
-                        msg += f"• {item}\n"
-                    msg += f"\n🔗 [Acesse o site aqui]({info['url']})"
+                    msg = f"🔔 *Nova atualização: {name}*\n" + "\n".join([f"• {i}" for i in diff])
                     send_telegram_msg(msg)
-            else:
-                logging.info(f"Primeira execução para {name}.")
-        else:
-            if name in old_data:
-                new_data[name] = old_data[name]
-    
-    save_data(new_data)
+                    mudanca = True
+            
+            new_data[name] = current_items
+        except Exception as e:
+            logging.error(f"Erro em {name}: {e}")
+
+    if mudanca:
+        save_data(new_data)
 
 if __name__ == "__main__":
     monitorar()
