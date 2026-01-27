@@ -14,7 +14,10 @@ logging.basicConfig(
 TOKEN = os.getenv("TOKEN_TELEGRAM")
 ID_CHAT = os.getenv("ID_TELEGRAM")
 HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+    'Referer': 'https://www.google.com/'
 }
 
 DATA_FILE = "concursos_data.json"
@@ -77,7 +80,8 @@ def monitorar():
     # --- MONITORAMENTO DE SITES ---
     sites = {
         "FGV (ALEGO)": "https://conhecimento.fgv.br/concursos/alego25",
-        "Verbena (Câmara Goiânia)": "https://sistemas.institutoverbena.ufg.br/2025/concurso-camara-goiania/"
+        "Verbena (Câmara Goiânia)": "https://sistemas.institutoverbena.ufg.br/2025/concurso-camara-goiania/",
+        "Cebraspe (Câmara dos Deputados)": "https://www.cebraspe.org.br/concursos/cd_25_ns"
     }
     
     for name, url in sites.items():
