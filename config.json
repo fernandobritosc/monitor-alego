@@ -1,0 +1,88 @@
+{
+    "sites": [
+        {
+            "name": "FGV (ALEGO)",
+            "url": "https://conhecimento.fgv.br/concursos/alego25",
+            "active": true
+        },
+        {
+            "name": "Verbena (Câmara Goiânia)",
+            "url": "https://sistemas.institutoverbena.ufg.br/2025/concurso-camara-goiania/",
+            "active": true
+        },
+        {
+            "name": "Cebraspe (Câmara dos Deputados)",
+            "url": "https://www.cebraspe.org.br/concursos/cd_25_ns",
+            "active": true
+        }
+    ],
+    "calendarios": {
+        "ALEGO 2025": {
+            "2026-01-15": "Publicação da Relação Definitiva de Inscrições e Divulgação da Relação Candidato Vaga",
+            "2026-02-02": "Publicação dos locais de prova (CCI)",
+            "2026-02-08": "Aplicação da Prova Objetiva e Discursiva",
+            "2026-02-10": "Gabarito Preliminar da Prova Objetiva",
+            "2026-03-20": "Gabarito Definitivo e Resultado Preliminar da Prova Objetiva",
+            "2026-04-06": "Resultado Definitivo da Prova Objetiva e Convocação para Títulos (Analista)",
+            "2026-04-24": "Resultado Preliminar da Prova Discursiva",
+            "2026-05-18": "Resultado Definitivo da Discursiva e Convocação para Heteroidentificação/Biopsicossocial/Prática/TAF",
+            "2026-06-01": "Resultado Definitivo da Adaptacao Razoavel",
+            "2026-06-08": "Resultado Preliminar da Heteroidentificacao e Biopsicossocial",
+            "2026-06-09": "Resultado Preliminar da Prova Pratica",
+            "2026-06-11": "Resultado Preliminar da Avaliacao Psicologica e TAF",
+            "2026-06-26": "Resultado Definitivo da Heteroidentificacao e Biopsicossocial",
+            "2026-07-01": "Resultado Definitivo de Titulos, Pratica, TAF e Avaliacao Psicologica",
+            "2026-07-02": "RESULTADO FINAL DO CONCURSO"
+        },
+        "Câmara de Goiânia 2025": {
+            "2025-11-24": "Publicação do Edital e Anexos",
+            "2026-01-06": "Início das Inscrições e Pedidos de Isenção/Especiais",
+            "2026-01-14": "Resultado Preliminar da Isenção",
+            "2026-01-23": "Resultado Final da Isenção",
+            "2026-02-06": "Último dia para Inscrição e Pagamento da Taxa",
+            "2026-02-11": "Resultados Preliminares (Inscrições/Isenções) e Pedidos Especiais",
+            "2026-02-20": "Resultados Finais (Inscrições Homologadas, PcD e Jurado)",
+            "2026-03-10": "Divulgação dos Locais e Horários da Prova Objetiva",
+            "2026-03-15": "REALIZAÇÃO DA PROVA OBJETIVA",
+            "2026-03-16": "Publicação do Gabarito Preliminar (Objetiva)",
+            "2026-03-25": "Publicação do Gabarito Final (Objetiva)",
+            "2026-03-26": "Resultado Preliminar da Objetiva e Boletim de Desempenho",
+            "2026-04-02": "Resultado Final da Objetiva e Convocação para Prova Prática",
+            "2026-04-07": "Local e Horário da Prova Prática",
+            "2026-04-09": "Início do Período de Prova Prática",
+            "2026-04-16": "Resultado Preliminar da Prova Prática",
+            "2026-04-27": "Resultado Final da Prova Prática e Convocação Biopsicossocial",
+            "2026-04-28": "Início do Prazo para Upload Biopsicossocial Documental",
+            "2026-05-06": "Resultado Preliminar Biopsicossocial Documental",
+            "2026-05-12": "Resultado Final Biopsicossocial Documental",
+            "2026-05-13": "Convocação Biopsicossocial Presencial e Heteroidentificação",
+            "2026-05-15": "Início da Avaliação Presencial/Heteroidentificação",
+            "2026-05-19": "Resultados Preliminares (Biopsicossocial e Heteroidentificação)",
+            "2026-05-25": "Resultados Finais (Biopsicossocial e Heteroidentificação)",
+            "2026-05-26": "Resultado Preliminar do Concurso Público",
+            "2026-05-29": "RESULTADO FINAL DO CONCURSO"
+        }
+    },
+    "ignore_list": [
+        "Menu",
+        "Voltar",
+        "Fale Conosco",
+        "Aviso de Cookies",
+        "Aviso de Privacidade",
+        "Pular para o conteúdo principal",
+        "Quem somos",
+        "Termos de Uso",
+        "Área restrita",
+        "Código de ética",
+        "Energia",
+        "Eventos",
+        "Exames",
+        "Seguros",
+        "Vídeos",
+        "Contatos",
+        "Como chegar",
+        "Início",
+        "Portal do Governo Brasileiro",
+        "Atualize sua Barra de Governo"
+    ]
+}

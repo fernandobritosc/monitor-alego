@@ -1,0 +1,39 @@
+name: Monitor Concursos
+
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Roda a cada 30 minutos
+  workflow_dispatch: # Permite rodar manualmente pelo site do GitHub
+
+permissions:
+  contents: write # IMPORTANTE: Permite que o bot salve o arquivo JSON no repositório
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Instalar dependências
+        run: |
+          pip install requests beautifulsoup4
+
+      - name: Executar script de monitoramento
+        env:
+          TOKEN_TELEGRAM: ${{ secrets.TOKEN_TELEGRAM }}
+          ID_TELEGRAM: ${{ secrets.ID_TELEGRAM }}
+        run: python monitor_concursos_v2.py
+
+      - name: Salvar alterações no histórico
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions@github.com'
+          git add concursos_data.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto: Atualização de histórico" && git push)
